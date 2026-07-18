@@ -1,11 +1,14 @@
 # CS2-Kube
 
-**Status: planning — image not built yet.** GameCTL currently runs
-`ghcr.io/kus/cs2-modded-server`; this repo will replace it with a from-scratch
-build. This is the most involved conversion because GameCTL's CS2 integration
-(mode switching, RTV, surf, DM) leans on the plugin catalog the kus image
-bundles — a from-scratch image must rebuild that catalog from each plugin's
-own upstream releases, not copy kus's bundle.
+**Status: catalog built — on-cluster gate pending.** Foundation (vanilla +
+Metamod + CounterStrikeSharp) boots to Steam-connected. The full plugin
+catalog now builds into the image: 7 always-on + 18 per-mode plugins, each
+fetched from its own upstream release pinned to the versions kus ships
+(`catalog/plugins.tsv`), plus the kus mode cfg tree vendored configs-only
+under `overlay/` (MIT — see `overlay/NOTICE.md`). GameCTL still runs
+`ghcr.io/kus/cs2-modded-server` in production until the migration gate below
+passes. Modes outside GameCTL's scoped set (soccer, warcraft, skins, fun
+extras) run cfg-only for now — their plugins are not in the catalog.
 
 ## Design (agreed)
 

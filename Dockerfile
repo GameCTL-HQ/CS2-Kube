@@ -1,7 +1,7 @@
 # GameCTL Counter-Strike 2 dedicated server image — built from scratch so
-# GameCTL controls exactly what runs. STATUS: foundation — vanilla + Metamod +
-# CounterStrikeSharp work; the full mode/plugin catalog (GameModeManager,
-# SharpTimer, MatchZy, ...) lands next (see README).
+# GameCTL controls exactly what runs. Metamod + CounterStrikeSharp + the full
+# mode/plugin catalog (catalog/plugins.tsv — each plugin from its own
+# upstream release) + the kus-derived mode cfg tree (overlay/, MIT).
 #
 # Sources: Debian's official base, Valve's official steamcmd, Metamod:Source
 # from metamodsource.net, CounterStrikeSharp from its GitHub releases. The
@@ -12,7 +12,7 @@
 FROM debian:12-slim AS addons
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-      ca-certificates curl jq unzip tar \
+      ca-certificates curl jq unzip tar libarchive-tools \
     && rm -rf /var/lib/apt/lists/*
 
 # Metamod:Source (latest 2.0 dev build — the CS2-supported line).
@@ -37,6 +37,16 @@ RUN cd /tmp \
     && unzip -q css.zip -d /addons-layer \
     && rm css.zip \
     && ls /addons-layer/addons/counterstrikesharp >/dev/null
+
+# The plugin catalog — every plugin from its own pinned upstream release
+# (see catalog/plugins.tsv for the inventory, tiers, and layout rules).
+COPY catalog/ /tmp/catalog/
+RUN LAYER=/addons-layer bash /tmp/catalog/fetch.sh /tmp/catalog/plugins.tsv
+
+# Mode cfg tree vendored from kus/cs2-modded-server (MIT, configs only — see
+# overlay/NOTICE.md). Copied AFTER the catalog so these cfgs override any
+# plugin-bundled defaults; GameCTL's generator overlay wins over both at boot.
+COPY overlay/csgo/ /addons-layer/
 
 
 FROM debian:12-slim

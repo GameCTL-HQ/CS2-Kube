@@ -1,0 +1,48 @@
+# GameCTL CS2 plugin catalog — every entry fetched from the plugin's OWN
+# upstream release (never kus's bundle). Versions pin the set kus 8c8f89b1
+# ships, i.e. a combination proven compatible with CS2 + CSS at build time.
+#
+# Columns (tab-separated): name<TAB>tier<TAB>url
+#   name — plugin dir name used when the archive has no folder structure of
+#          its own, and the name fetch.sh moves for the mode tier.
+#   tier — metamod            : Source2 (C++) plugin, auto-loaded via its .vdf
+#          metamod-ondemand   : Source2 plugin whose .vdf is stripped; the cfg
+#                               tree 'meta load's it per-mode (kus semantics —
+#                               MovementUnlocker loaded mid-map crashes CS2,
+#                               so surf.cfg loads it then changelevels)
+#          core               : CSS plugin, always loaded (plugins/)
+#          mode               : CSS plugin, per-mode (plugins/disabled/,
+#                               loaded by the mode cfgs / GameModeManager)
+#
+# ORDER MATTERS: later entries overwrite earlier ones. GameModeManager's zip
+# bundles its own copies of CS2-CustomVotes + WASD menu; the dedicated
+# upstream entries come after it so they win.
+multiaddonmanager	metamod-ondemand	https://github.com/Source2ZE/MultiAddonManager/releases/download/v1.5/MultiAddonManager-v1.5-linux.tar.gz
+movementunlocker	metamod-ondemand	https://github.com/Source2ZE/MovementUnlocker/releases/download/v1.12/MovementUnlocker-v1.12-linux.tar.gz
+rampbugfix	metamod-ondemand	https://github.com/Interesting-exe/CS2Fixes-RampbugFix/releases/download/5-1/CS2Fixes-RampbugFix-5-1-linux.tar.gz
+serverlistplayersfix	metamod	https://github.com/Source2ZE/ServerListPlayersFix/releases/download/v1.0.7/ServerListPlayersFix-v1.0.7-linux.tar.gz
+GameModeManager	core	https://github.com/nickj609/GameModeManager/releases/download/v1.0.62/GameModeManager_v1.0.62.zip
+CS2-CustomVotes	core	https://github.com/imi-tat0r/CS2-CustomVotes/releases/download/v1.1.3/CS2-CustomVotes-1.1.3-ce5fc3f.zip
+WASDMenuAPI	core	https://github.com/Interesting-exe/WASDMenuAPI/releases/download/1.0.2/WasdMenu.zip
+CS2AnnouncementBroadcaster	core	https://github.com/lengran/CS2AnnouncementBroadcaster/releases/download/v0.5/CS2AnnouncementBroadcaster-v0.5.zip
+CS2Rcon	core	https://github.com/LordFetznschaedl/CS2Rcon/releases/download/1.2.0/CS2Rcon-1.2.0.zip
+CS2_ExecAfter	core	https://github.com/kus/CS2_ExecAfter/releases/download/v1.0.0/CS2_ExecAfter-1.0.0.zip
+FixRandomSpawn	core	https://github.com/qstage/CS2-FixRandomSpawn/releases/download/v1.1.4.1/FixRandomSpawn.zip
+MatchZy	mode	https://github.com/shobhit-pathak/MatchZy/releases/download/0.8.15/MatchZy-0.8.15.zip
+SharpTimer	mode	https://github.com/Letaryat/poor-sharptimer/releases/download/v0.4.0/SharpTimer-v0.4.0.zip
+STFixes	mode	https://github.com/rcnoob/STFixes/releases/download/v1.0.5/STFixes_1.0.5.zip
+K4-DamageInfo	mode	https://github.com/KitsuneLab-Development/K4-DamageInfo/releases/download/v2.4.0/K4-DamageInfo.zip
+GG2	mode	https://github.com/ssypchenko/cs2-gungame/releases/download/v1.2.2/GG2.plugin.1.2.2.zip
+K4-Arenas	mode	https://github.com/KitsuneLab-Development/K4-Arenas/releases/download/v2.0.8/K4-Arenas.zip
+K4-Arenas-Bots	mode	https://github.com/KitsuneLab-Development/K4-Arenas/releases/download/v2.0.8/K4-Arenas-Bots.zip
+RetakesPlugin	mode	https://github.com/B3none/cs2-retakes/releases/download/3.0.4/RetakesPlugin-3.0.4.zip
+InstadefusePlugin	mode	https://github.com/B3none/cs2-instadefuse/releases/download/2.0.0/cs2-instadefuse-2.0.0.zip
+RetakesAllocator	mode	https://github.com/yonilerner/cs2-retakes-allocator/releases/download/v2.4.2/cs2-retakes-allocator-v2.4.2.zip
+WhiteList	mode	https://github.com/PhantomYopta/CS2_WhiteList/releases/download/1.0.0/WhiteList.zip
+ExecutesPlugin	mode	https://github.com/zwolof/cs2-executes/releases/download/1.1.1/cs2-executes-1.1.1.zip
+Advertisement	mode	https://github.com/partiusfabaa/cs2-advertisement/releases/download/v1.0.8-recompile/Advertisement.zip
+Deathmatch	mode	https://github.com/NockyCZ/CS2-Deathmatch/releases/download/v1.3.4/Deathmatch.zip
+OpenPrefirePrac	mode	https://github.com/lengran/OpenPrefirePrac/releases/download/v0.1.47/OpenPrefirePrac-v0.1.47.zip
+DeathrunManager	mode	https://github.com/leoskiline/cs2-deathrun-manager/releases/download/V0.5.1/cs2-deathrun-manager-0.5.1.zip
+CS2-Remove-Map-Weapons	mode	https://github.com/kus/CS2-Remove-Map-Weapons/releases/download/v1.0.1/CS2-Remove-Map-Weapons-1.0.1.zip
+MutualScoringPlayers	mode	https://github.com/qstage/CS2-MutualScoringPlayers/releases/download/v1.0.3/MutualScoringPlayers.zip

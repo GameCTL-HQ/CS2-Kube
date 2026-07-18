@@ -67,7 +67,7 @@ fi
 # --- Addons layer: metamod + CounterStrikeSharp (+ catalog when it lands) ---
 # rsync'd onto the install every boot so game updates never wipe the mods;
 # --ignore-existing for configs so operator/GameCTL-overlay edits win.
-echo "gamectl: applying addons layer (metamod + CounterStrikeSharp)"
+echo "gamectl: applying addons layer (metamod + CounterStrikeSharp + plugin catalog + mode cfg tree)"
 rsync -a --chown="$uid:$gid" --exclude 'addons/counterstrikesharp/configs' /opt/addons-layer/ "$CSGO/"
 rsync -a --chown="$uid:$gid" --ignore-existing /opt/addons-layer/addons/counterstrikesharp/configs/ "$CSGO/addons/counterstrikesharp/configs/" 2>/dev/null || true
 mkdir -p "$CSGO/addons/counterstrikesharp/logs" "$CSGO/addons/metamod/logs"
