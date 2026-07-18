@@ -65,6 +65,15 @@ place() { # name workdir  -> merge normalized content into the layer
   if compgen -G "$work/*.dll" >/dev/null; then
     mkdir -p "$CSS/plugins/$name"
     cp -a "$work/." "$CSS/plugins/$name/"
+    # Plugins that ship gamedata/ at archive root (FixRandomSpawn) expect it
+    # merged into CSS's central gamedata dir — plugin-local isn't consulted by
+    # GameData.GetSignature, the plugin then throws in Load, and a plugin that
+    # dies mid-Load leaves GC'd delegate callbacks behind that abort the whole
+    # server at map activate.
+    if compgen -G "$work/gamedata/*.json" >/dev/null; then
+      mkdir -p "$CSS/gamedata"
+      cp -a "$work"/gamedata/*.json "$CSS/gamedata/"
+    fi
     return 0
   fi
   # bare plugin folder(s): any top-level dir with a DLL at its own top level
