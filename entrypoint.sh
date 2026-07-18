@@ -20,11 +20,24 @@ export HOME=/home/steam
 GAMEDIR="$DATA"
 CSGO="$GAMEDIR/game/csgo"
 mkdir -p "$GAMEDIR" "$DATA/.gamectl/steamhome"
-chown "$uid:$gid" "$DATA" 2>/dev/null || true
+chown "$uid:$gid" "$DATA" "$GAMEDIR" "$DATA/.gamectl" "$DATA/.gamectl/steamhome" 2>/dev/null || true
+# One-time migration: installs made by older builds (or the kus image) can be
+# root-owned; CS2 (as the run user) writes throughout the tree, so fix
+# ownership once. Sentinel = the cs2 binary's owner.
+if [ -e "$GAMEDIR/game/bin/linuxsteamrt64/cs2" ] && [ "$(stat -c %u "$GAMEDIR/game/bin/linuxsteamrt64/cs2")" != "$uid" ]; then
+  echo "gamectl: one-time ownership migration of the install (may take a few minutes)"
+  chown -R "$uid:$gid" "$GAMEDIR" 2>/dev/null || true
+fi
 
+# steamcmd runs AS the run user so the entire install is owned by it (CS2
+# writes CWD-relative logs, workshop maps, shader caches all over the tree).
+as_user() {
+  if [ "$(id -u)" = "0" ]; then setpriv --reuid "$uid" --regid "$gid" --clear-groups "$@"; else "$@"; fi
+}
 steamcmd_update() {
+  chown -R "$uid:$gid" "$DATA/.gamectl/steamhome" /opt/steamcmd 2>/dev/null || true
   for i in 1 2 3 4 5 6; do
-    HOME="$DATA/.gamectl/steamhome" /opt/steamcmd/steamcmd.sh \
+    as_user env HOME="$DATA/.gamectl/steamhome" /opt/steamcmd/steamcmd.sh \
       +force_install_dir "$GAMEDIR" +login anonymous +app_update 730 "$@" +quit && return 0
     echo "gamectl: steamcmd attempt $i failed — clearing appcache and retrying" >&2
     rm -rf "$DATA/.gamectl/steamhome/Steam/appcache" 2>/dev/null || true
@@ -55,8 +68,10 @@ fi
 # rsync'd onto the install every boot so game updates never wipe the mods;
 # --ignore-existing for configs so operator/GameCTL-overlay edits win.
 echo "gamectl: applying addons layer (metamod + CounterStrikeSharp)"
-rsync -a --exclude 'addons/counterstrikesharp/configs' /opt/addons-layer/ "$CSGO/"
-rsync -a --ignore-existing /opt/addons-layer/addons/counterstrikesharp/configs/ "$CSGO/addons/counterstrikesharp/configs/" 2>/dev/null || true
+rsync -a --chown="$uid:$gid" --exclude 'addons/counterstrikesharp/configs' /opt/addons-layer/ "$CSGO/"
+rsync -a --chown="$uid:$gid" --ignore-existing /opt/addons-layer/addons/counterstrikesharp/configs/ "$CSGO/addons/counterstrikesharp/configs/" 2>/dev/null || true
+mkdir -p "$CSGO/addons/counterstrikesharp/logs" "$CSGO/addons/metamod/logs"
+chown -R "$uid:$gid" "$CSGO/addons/counterstrikesharp/logs" "$CSGO/addons/metamod/logs" 2>/dev/null || true
 # Register metamod in gameinfo.gi (idempotent — kus-equivalent step).
 GI="$CSGO/gameinfo.gi"
 if [ -f "$GI" ] && ! grep -q 'csgo/addons/metamod' "$GI"; then
@@ -69,7 +84,7 @@ fi
 OV="/home/${CUSTOM_FOLDER:-custom_files}"
 if [ -d "$OV" ] && [ -n "$(ls -A "$OV" 2>/dev/null)" ]; then
   echo "gamectl: applying $OV overlay"
-  rsync -a "$OV/" "$CSGO/"
+  rsync -a --chown="$uid:$gid" "$OV/" "$CSGO/"
 fi
 
 chown "$uid:$gid" "$CSGO" 2>/dev/null || true
@@ -89,6 +104,11 @@ args=(-dedicated -console -usercon
 [ -n "${SERVER_PASSWORD:-}" ] && args+=(+sv_password "$SERVER_PASSWORD")
 # shellcheck disable=SC2206
 [ -n "${EXTRA_ARGS:-}" ] && args+=(${EXTRA_ARGS})
+
+# Steamworks SDK: the gameserver dlopens ~/.steam/sdk64/steamclient.so.
+mkdir -p "$HOME/.steam/sdk64"
+ln -sf /opt/steamcmd/linux64/steamclient.so "$HOME/.steam/sdk64/steamclient.so"
+chown -R "$uid:$gid" "$HOME/.steam" 2>/dev/null || true
 
 echo "gamectl: starting CS2 — port ${port}, tickrate ${TICKRATE:-128}, maxplayers ${MAXPLAYERS:-24}"
 cd "$GAMEDIR/game/bin/linuxsteamrt64"

@@ -43,7 +43,7 @@ FROM debian:12-slim
 
 RUN dpkg --add-architecture i386 && apt-get update \
     && apt-get install -y --no-install-recommends \
-       ca-certificates curl lib32gcc-s1 libnss-wrapper coreutils tini util-linux rsync \
+       ca-certificates curl lib32gcc-s1 libicu72 libnss-wrapper coreutils tini util-linux rsync \
     && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /opt/steamcmd && cd /opt/steamcmd \
