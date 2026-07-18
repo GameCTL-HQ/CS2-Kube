@@ -1,13 +1,13 @@
 # CS2-Kube
 
-**Status: catalog built — on-cluster gate pending.** Foundation (vanilla +
+**Status: LIVE — migration complete (2026-07-18).** Foundation (vanilla +
 Metamod + CounterStrikeSharp) boots to Steam-connected. The full plugin
 catalog now builds into the image: 7 always-on + 18 per-mode plugins, each
 fetched from its own upstream release pinned to the versions kus ships
 (`catalog/plugins.tsv`), plus the kus mode cfg tree vendored configs-only
-under `overlay/` (MIT — see `overlay/NOTICE.md`). GameCTL still runs
-`ghcr.io/kus/cs2-modded-server` in production until the migration gate below
-passes. Modes outside GameCTL's scoped set (soccer, warcraft, skins, fun
+under `overlay/` (MIT — see `overlay/NOTICE.md`). The live cs2-modded server now runs this image (flipped 2026-07-18 after
+both gates passed — scratch-volume cold start and the kus-volume boot; the
+old kus addons tree is parked at addons.kus-backup-20260718 on the volume). Modes outside GameCTL's scoped set (soccer, warcraft, skins, fun
 extras) run cfg-only for now — their plugins are not in the catalog.
 
 ## Design (agreed)

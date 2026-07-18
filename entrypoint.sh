@@ -68,8 +68,17 @@ fi
 # rsync'd onto the install every boot so game updates never wipe the mods;
 # --ignore-existing for configs so operator/GameCTL-overlay edits win.
 echo "gamectl: applying addons layer (metamod + CounterStrikeSharp + plugin catalog + mode cfg tree)"
-rsync -a --chown="$uid:$gid" --exclude 'addons/counterstrikesharp/configs' /opt/addons-layer/ "$CSGO/"
-rsync -a --chown="$uid:$gid" --ignore-existing /opt/addons-layer/addons/counterstrikesharp/configs/ "$CSGO/addons/counterstrikesharp/configs/" 2>/dev/null || true
+apply_addons_layer() {
+  rsync -a --chown="$uid:$gid" --exclude 'addons/counterstrikesharp/configs' /opt/addons-layer/ "$CSGO/" \
+    && { rsync -a --chown="$uid:$gid" --ignore-existing /opt/addons-layer/addons/counterstrikesharp/configs/ "$CSGO/addons/counterstrikesharp/configs/" 2>/dev/null || true; }
+}
+# One retry: NFS volumes can throw transient ENOENT (stale attribute cache)
+# right after server-side renames — seen live on the kus->cs2-kube migration.
+if ! apply_addons_layer; then
+  echo "gamectl: WARN addons-layer rsync failed (transient NFS?) — retrying in 5s" >&2
+  sleep 5
+  apply_addons_layer
+fi
 mkdir -p "$CSGO/addons/counterstrikesharp/logs" "$CSGO/addons/metamod/logs"
 chown -R "$uid:$gid" "$CSGO/addons/counterstrikesharp/logs" "$CSGO/addons/metamod/logs" 2>/dev/null || true
 # Register metamod in gameinfo.gi (idempotent — kus-equivalent step).
