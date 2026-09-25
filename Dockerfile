@@ -34,7 +34,7 @@ RUN mkdir -p /addons-layer && cd /tmp \
 # schema/hook signatures are stale — crash ~10s after 'server started').
 # Bump only with a CSS release that still targets interface 17, or together
 # with MMS_VERSION when one targets 18 (see above).
-ARG CSS_VERSION=v1.0.375
+ARG CSS_VERSION=v1.0.374
 RUN cd /tmp \
     && if [ "$CSS_VERSION" = "latest" ]; then \
          url="$(curl -fsSL https://api.github.com/repos/roflmuffin/CounterStrikeSharp/releases/latest \
