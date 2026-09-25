@@ -15,8 +15,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       ca-certificates curl jq unzip tar libarchive-tools \
     && rm -rf /var/lib/apt/lists/*
 
-# Metamod:Source (latest 2.0 dev build — the CS2-supported line).
-ARG MMS_VERSION=
+# Metamod:Source — PINNED. Must stay on git1411: builds >=1461 bumped the
+# SourceHook plugin interface 17->18 and refuse CSS v1.0.374
+# (roflmuffin/CounterStrikeSharp#1415), killing the whole CSS plugin stack
+# (mapswitcher/GameModeManager, MatchZy, custom GameCtl plugins...). Bump only
+# in lockstep with a CSS release that targets interface 18.
+ARG MMS_VERSION=mmsource-2.0.0-git1411-linux.tar.gz
 RUN mkdir -p /addons-layer && cd /tmp \
     && mm="${MMS_VERSION:-$(curl -fsSL https://mms.alliedmods.net/mmsdrop/2.0/mmsource-latest-linux)}" \
     && curl -fsSL "https://mms.alliedmods.net/mmsdrop/2.0/${mm}" -o mms.tar.gz \
@@ -24,7 +28,10 @@ RUN mkdir -p /addons-layer && cd /tmp \
     && rm mms.tar.gz
 
 # CounterStrikeSharp (with runtime) from its own GitHub releases.
-ARG CSS_VERSION=latest
+# PINNED to v1.0.374 — the newest release compatible with MM git1411
+# (SourceHook interface 17). Newer CSS targeting interface 18 will NOT load
+# on git1411; bump both together (see MMS_VERSION above).
+ARG CSS_VERSION=v1.0.374
 RUN cd /tmp \
     && if [ "$CSS_VERSION" = "latest" ]; then \
          url="$(curl -fsSL https://api.github.com/repos/roflmuffin/CounterStrikeSharp/releases/latest \
