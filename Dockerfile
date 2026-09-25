@@ -15,12 +15,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       ca-certificates curl jq unzip tar libarchive-tools \
     && rm -rf /var/lib/apt/lists/*
 
-# Metamod:Source — PINNED. Must stay on git1411: builds >=1461 bumped the
-# SourceHook plugin interface 17->18 and refuse CSS v1.0.374
-# (roflmuffin/CounterStrikeSharp#1415), killing the whole CSS plugin stack
-# (mapswitcher/GameModeManager, MatchZy, custom GameCtl plugins...). Bump only
-# in lockstep with a CSS release that targets interface 18.
-ARG MMS_VERSION=mmsource-2.0.0-git1411-linux.tar.gz
+# Metamod:Source — PINNED. Must be a KHook build (API 18): git1463 introduced
+# KHook, git1467/1468/1469 fixed KHook unload + shutdown crash. CSS v1.0.375+
+# requires "Metamod with KHook (plugin API 18)". Do NOT drop to git1411 —
+# it's API 17, loads CSS v1.0.374, but SEGFAULTS on game 1.41.8.x (stale
+# hook signatures; verified crash loop 2026-09-25). Bump CSS + MM together:
+# a newer CSS may target an API 19+ we can't preview here.
+ARG MMS_VERSION=mmsource-2.0.0-git1469-linux.tar.gz
 RUN mkdir -p /addons-layer && cd /tmp \
     && mm="${MMS_VERSION:-$(curl -fsSL https://mms.alliedmods.net/mmsdrop/2.0/mmsource-latest-linux)}" \
     && curl -fsSL "https://mms.alliedmods.net/mmsdrop/2.0/${mm}" -o mms.tar.gz \
@@ -28,10 +29,12 @@ RUN mkdir -p /addons-layer && cd /tmp \
     && rm mms.tar.gz
 
 # CounterStrikeSharp (with runtime) from its own GitHub releases.
-# PINNED to v1.0.374 — the newest release compatible with MM git1411
-# (SourceHook interface 17). Newer CSS targeting interface 18 will NOT load
-# on git1411; bump both together (see MMS_VERSION above).
-ARG CSS_VERSION=v1.0.374
+# PINNED to v1.0.375 — targets SourceHook interface 17 (matches MM git1411)
+# AND fixes game builds 1.41.8.x (v1.0.374 segfaults at runtime on 1.41.8.4:
+# schema/hook signatures are stale — crash ~10s after 'server started').
+# Bump only with a CSS release that still targets interface 17, or together
+# with MMS_VERSION when one targets 18 (see above).
+ARG CSS_VERSION=v1.0.375
 RUN cd /tmp \
     && if [ "$CSS_VERSION" = "latest" ]; then \
          url="$(curl -fsSL https://api.github.com/repos/roflmuffin/CounterStrikeSharp/releases/latest \
